@@ -14,9 +14,16 @@ export interface GraphRenderer {
   dispose(): void;
 }
 
+const noopGraphRenderer: GraphRenderer = {
+  dispose() {},
+  resize(_width: number, _height: number) {},
+  setFocus(_target: FocusTarget | null) {},
+  setScene(_scene: GraphScene) {},
+};
+
 export function createRenderer(
   _canvas: HTMLCanvasElement,
   _options: RendererOptions = {},
 ): GraphRenderer {
-  throw new Error("createRenderer is not implemented yet.");
+  return noopGraphRenderer;
 }
