@@ -14,16 +14,18 @@ export interface GraphRenderer {
   dispose(): void;
 }
 
-const noopGraphRenderer: GraphRenderer = {
-  dispose() {},
-  resize(_width: number, _height: number) {},
-  setFocus(_target: FocusTarget | null) {},
-  setScene(_scene: GraphScene) {},
-};
+function createNoopGraphRenderer(): GraphRenderer {
+  return {
+    dispose() {},
+    resize(_width: number, _height: number) {},
+    setFocus(_target: FocusTarget | null) {},
+    setScene(_scene: GraphScene) {},
+  };
+}
 
 export function createRenderer(
   _canvas: HTMLCanvasElement,
   _options: RendererOptions = {},
 ): GraphRenderer {
-  return noopGraphRenderer;
+  return createNoopGraphRenderer();
 }
