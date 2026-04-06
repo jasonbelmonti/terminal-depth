@@ -21,6 +21,15 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.12.2)
 
+  apps/playground:
+    dependencies:
+      '@terminal-depth/renderer-core':
+        specifier: workspace:*
+        version: link:../../packages/renderer-core
+      '@terminal-depth/scene-contract':
+        specifier: workspace:*
+        version: link:../../packages/scene-contract
+
   packages/layout-dag:
     dependencies:
       '@terminal-depth/scene-contract':
