@@ -21,6 +21,22 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.12.2)
 
+  packages/layout-dag:
+    dependencies:
+      '@terminal-depth/scene-contract':
+        specifier: workspace:*
+        version: link:../scene-contract
+
+  packages/renderer-core:
+    dependencies:
+      '@terminal-depth/scene-contract':
+        specifier: workspace:*
+        version: link:../scene-contract
+
+  packages/scene-contract: {}
+
+  packages/terminal-style: {}
+
 packages:
 
   '@esbuild/aix-ppc64@0.27.7':

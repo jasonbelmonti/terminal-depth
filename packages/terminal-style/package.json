@@ -11,6 +11,6 @@
     }
   },
   "scripts": {
-    "typecheck": "pnpm exec tsc --project tsconfig.json --pretty false"
+    "typecheck": "pnpm exec tsc --project tsconfig.json --pretty false --noEmit"
   }
 }

@@ -6,5 +6,18 @@
     "types": ["node"]
   },
   "files": ["./vitest.config.ts"],
-  "references": []
+  "references": [
+    {
+      "path": "./packages/scene-contract"
+    },
+    {
+      "path": "./packages/renderer-core"
+    },
+    {
+      "path": "./packages/layout-dag"
+    },
+    {
+      "path": "./packages/terminal-style"
+    }
+  ]
 }
