@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 import { describe, expect, it } from "vitest";
@@ -28,10 +29,17 @@ function listRuntimeDependencyNames(manifest: PackageManifest): string[] {
 }
 
 async function runPlaygroundImportSmoke(expression: string): Promise<string> {
-  const repoRoot = new URL("../", import.meta.url);
+  const packageManagerExecPath = process.env.npm_execpath;
+
+  if (!packageManagerExecPath) {
+    throw new Error("npm_execpath is not set; run this smoke test through `pnpm test`.");
+  }
+
+  const repoRoot = fileURLToPath(new URL("../", import.meta.url));
   const { stdout } = await execFileAsync(
-    "pnpm",
+    process.execPath,
     [
+      packageManagerExecPath,
       "--filter",
       "@terminal-depth/playground",
       "exec",
