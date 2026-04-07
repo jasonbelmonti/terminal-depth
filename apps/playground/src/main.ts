@@ -38,10 +38,15 @@ const resizeObserver = new ResizeObserver((entries) => {
 
 resizeObserver.observe(shell.viewport);
 
+const handlePageHide = () => {
+  disposeRenderer();
+};
+
 const disposeRenderer = () => {
+  removeEventListener("pagehide", handlePageHide);
   resizeObserver.disconnect();
   renderer.dispose();
 };
 
-addEventListener("pagehide", disposeRenderer, { once: true });
+addEventListener("pagehide", handlePageHide, { once: true });
 import.meta.hot?.dispose(disposeRenderer);
