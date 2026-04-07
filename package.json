@@ -13,7 +13,7 @@
     "dev": "pnpm --recursive --parallel --if-present dev",
     "build": "pnpm --recursive --if-present build",
     "typecheck": "pnpm exec tsc --project tsconfig.json --pretty false && pnpm --recursive --if-present typecheck",
-    "test": "pnpm --recursive --if-present test",
+    "test": "pnpm exec vitest run --config vitest.config.ts && pnpm --recursive --if-present test",
     "test:watch": "pnpm --recursive --parallel --if-present test:watch"
   },
   "devDependencies": {
