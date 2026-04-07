@@ -1,0 +1,16 @@
+{
+  "name": "@terminal-depth/playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm exec vite build",
+    "dev": "pnpm exec vite",
+    "preview": "pnpm exec vite preview",
+    "typecheck": "pnpm exec tsc --project tsconfig.json --pretty false"
+  },
+  "dependencies": {
+    "@terminal-depth/renderer-core": "workspace:*",
+    "@terminal-depth/scene-contract": "workspace:*"
+  }
+}
