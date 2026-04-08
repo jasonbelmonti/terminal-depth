@@ -9,6 +9,8 @@ import "./style.css";
 
 const shellScene: GraphScene = {
   version: GRAPH_SCENE_VERSION,
+  nodes: [],
+  edges: [],
 };
 
 const rootElement = document.querySelector<HTMLDivElement>("#app");
