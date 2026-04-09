@@ -69,6 +69,12 @@ describe("workspace smoke", () => {
         "import('@terminal-depth/scene-contract').then((m)=>console.log(m.GRAPH_SCENE_VERSION))",
       ),
     ).resolves.toBe("graph-scene/v1");
+
+    await expect(
+      runPlaygroundImportSmoke(
+        "import('@terminal-depth/scene-contract/fixtures').then((m)=>console.log(m.EMPTY_GRAPH_SCENE_FIXTURE.version))",
+      ),
+    ).resolves.toBe("graph-scene/v1");
   });
 
   it("keeps react out of the public runtime manifests", async () => {
