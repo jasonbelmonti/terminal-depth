@@ -8,6 +8,10 @@
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
+    },
+    "./fixtures": {
+      "types": "./src/fixtures/index.ts",
+      "import": "./src/fixtures/index.ts"
     }
   },
   "publishConfig": {
@@ -16,6 +20,10 @@
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
+      },
+      "./fixtures": {
+        "types": "./dist/fixtures/index.d.ts",
+        "import": "./dist/fixtures/index.js"
       }
     }
   },
