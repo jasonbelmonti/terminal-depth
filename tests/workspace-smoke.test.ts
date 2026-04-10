@@ -56,31 +56,54 @@ async function runPlaygroundImportSmoke(expression: string): Promise<string> {
   return stdout.trim();
 }
 
+async function expectPlaygroundImportToResolve(
+  expression: string,
+  expected: string,
+): Promise<void> {
+  await expect(runPlaygroundImportSmoke(expression)).resolves.toBe(expected);
+}
+
+const PLAYGROUND_IMPORT_CASES = [
+  {
+    expression:
+      "import('@terminal-depth/renderer-core').then((m)=>console.log(typeof m.createRenderer))",
+    expected: "function",
+  },
+  {
+    expression:
+      "import('@terminal-depth/scene-contract').then((m)=>console.log(m.GRAPH_SCENE_VERSION))",
+    expected: "graph-scene/v1",
+  },
+  {
+    expression:
+      "import('@terminal-depth/scene-contract').then((m)=>console.log(String('HERO_GRAPH_SCENE_FIXTURE' in m)))",
+    expected: "false",
+  },
+  {
+    expression:
+      "import('@terminal-depth/scene-contract/fixtures').then((m)=>console.log(m.EMPTY_GRAPH_SCENE_FIXTURE.version))",
+    expected: "graph-scene/v1",
+  },
+  {
+    expression:
+      "import('@terminal-depth/scene-contract/fixtures').then((m)=>console.log(m.BENCHMARK_GRAPH_SCENE_FIXTURE.version))",
+    expected: "graph-scene/v1",
+  },
+  {
+    expression:
+      "import('@terminal-depth/scene-contract/fixtures').then((m)=>console.log(m.HERO_GRAPH_SCENE_FIXTURE.version))",
+    expected: "graph-scene/v1",
+  },
+] as const;
+
 describe("workspace smoke", () => {
   it("resolves the current public package exports from the playground path", async () => {
-    await expect(
-      runPlaygroundImportSmoke(
-        "import('@terminal-depth/renderer-core').then((m)=>console.log(typeof m.createRenderer))",
-      ),
-    ).resolves.toBe("function");
-
-    await expect(
-      runPlaygroundImportSmoke(
-        "import('@terminal-depth/scene-contract').then((m)=>console.log(m.GRAPH_SCENE_VERSION))",
-      ),
-    ).resolves.toBe("graph-scene/v1");
-
-    await expect(
-      runPlaygroundImportSmoke(
-        "import('@terminal-depth/scene-contract/fixtures').then((m)=>console.log(m.EMPTY_GRAPH_SCENE_FIXTURE.version))",
-      ),
-    ).resolves.toBe("graph-scene/v1");
-
-    await expect(
-      runPlaygroundImportSmoke(
-        "import('@terminal-depth/scene-contract/fixtures').then((m)=>console.log(m.BENCHMARK_GRAPH_SCENE_FIXTURE.version))",
-      ),
-    ).resolves.toBe("graph-scene/v1");
+    for (const importCase of PLAYGROUND_IMPORT_CASES) {
+      await expectPlaygroundImportToResolve(
+        importCase.expression,
+        importCase.expected,
+      );
+    }
   });
 
   it("keeps react out of the public runtime manifests", async () => {
