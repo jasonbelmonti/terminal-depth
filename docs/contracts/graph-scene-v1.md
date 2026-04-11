@@ -4,6 +4,11 @@
 It is versioned, JSON-serializable, and intentionally small so hosts can build
 scenes without importing renderer internals or domain-specific types.
 
+Companion guide:
+
+- `docs/contracts/host-embedding-and-shell-composition.md` covers the host-side
+  adapter flow, renderer embedding, and shell composition above this seam.
+
 ## Required and Optional Fields
 
 Required top-level fields:
@@ -81,5 +86,5 @@ This contract does not depend on:
 - Bun APIs
 - SQLite internals
 
-Broader host-mapping and embedding guidance remains the responsibility of
-`BEL-600`.
+Broader host-mapping and embedding guidance lives in
+`docs/contracts/host-embedding-and-shell-composition.md`.
