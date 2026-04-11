@@ -28,7 +28,7 @@ export function computeDagLayers(graph: DagGraph): DagLayers {
   while (readyNodeIds.length > 0) {
     const nodeId = readyNodeIds.shift();
 
-    if (!nodeId) {
+    if (nodeId === undefined) {
       break;
     }
 

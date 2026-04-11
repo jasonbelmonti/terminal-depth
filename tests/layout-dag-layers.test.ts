@@ -166,4 +166,29 @@ describe("layout-dag layering", () => {
 
     expect(computeLayeredDagLayout(scene)).toBe(scene);
   });
+
+  it("accepts an empty-string node id without corrupting cycle detection", () => {
+    const scene = createScene(
+      [
+        { id: "", label: "Empty" },
+        { id: "node:b", label: "B" },
+      ],
+      [
+        {
+          id: "edge:empty-b",
+          source: "",
+          target: "node:b",
+          kind: "dependency",
+        },
+      ],
+    );
+    const layers = computeDagLayers(buildDagGraph(scene));
+
+    expect(layers.topologicalOrder).toEqual(["", "node:b"]);
+    expect(Object.fromEntries(layers.layerByNodeId.entries())).toEqual({
+      "": 0,
+      "node:b": 1,
+    });
+    expect(computeLayeredDagLayout(scene)).toBe(scene);
+  });
 });
