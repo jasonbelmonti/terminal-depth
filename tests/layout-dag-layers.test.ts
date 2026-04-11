@@ -30,6 +30,23 @@ function layerRecord(scene: GraphScene): Record<string, number> {
   return Object.fromEntries(layerByNodeId.entries());
 }
 
+function expectLayoutDagError(
+  callback: () => unknown,
+  code: string,
+  messagePattern: RegExp,
+): void {
+  try {
+    callback();
+  } catch (error) {
+    expect(error).toBeInstanceOf(LayoutDagError);
+    expect((error as LayoutDagError).code).toBe(code);
+    expect((error as LayoutDagError).message).toMatch(messagePattern);
+    return;
+  }
+
+  throw new Error(`Expected LayoutDagError with code "${code}".`);
+}
+
 describe("layout-dag layering", () => {
   it("assigns layers across a simple chain", () => {
     const scene = createScene(
@@ -145,6 +162,71 @@ describe("layout-dag layering", () => {
     expect(() => computeLayeredDagLayout(scene)).toThrowError(LayoutDagError);
     expect(() => computeLayeredDagLayout(scene)).toThrowError(
       /contains a cycle/i,
+    );
+  });
+
+  it("rejects duplicate node ids during graph preparation", () => {
+    const scene = createScene(
+      [
+        { id: "node:a", label: "First" },
+        { id: "node:a", label: "Second" },
+      ],
+      [],
+    );
+
+    expectLayoutDagError(
+      () => buildDagGraph(scene),
+      "duplicate-node-id",
+      /node id "node:a" is duplicated/i,
+    );
+  });
+
+  it("rejects duplicate edge ids during graph preparation", () => {
+    const scene = createScene(
+      [
+        { id: "node:a", label: "A" },
+        { id: "node:b", label: "B" },
+      ],
+      [
+        {
+          id: "edge:a-b",
+          source: "node:a",
+          target: "node:b",
+          kind: "dependency",
+        },
+        {
+          id: "edge:a-b",
+          source: "node:a",
+          target: "node:b",
+          kind: "dependency",
+        },
+      ],
+    );
+
+    expectLayoutDagError(
+      () => buildDagGraph(scene),
+      "duplicate-edge-id",
+      /edge id "edge:a-b" is duplicated/i,
+    );
+  });
+
+  it("rejects dangling edge references during graph preparation", () => {
+    const scene = createScene(
+      [{ id: "node:a", label: "A" }],
+      [
+        {
+          id: "edge:missing-target",
+          source: "node:a",
+          target: "node:b",
+          kind: "dependency",
+        },
+      ],
+    );
+
+    expectLayoutDagError(
+      () => buildDagGraph(scene),
+      "dangling-edge-reference",
+      /references missing target "node:b"/i,
     );
   });
 
