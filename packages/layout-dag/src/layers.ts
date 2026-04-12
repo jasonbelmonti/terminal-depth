@@ -1,5 +1,6 @@
 import { LayoutDagError } from "./errors.ts";
 import { buildDagGraph, compareIds, type DagGraph } from "./graph.ts";
+import { computeOrderedNodesByLayer } from "./ordering.ts";
 
 export interface DagLayers {
   readonly layerByNodeId: ReadonlyMap<string, number>;
@@ -63,7 +64,7 @@ export function computeDagLayers(graph: DagGraph): DagLayers {
   }
 
   const layerByNodeId = new Map<string, number>();
-  const nodesByLayer = new Map<number, string[]>();
+  const unorderedNodesByLayer = new Map<number, string[]>();
   let maxLayer = 0;
 
   for (const nodeId of topologicalOrder) {
@@ -75,20 +76,26 @@ export function computeDagLayers(graph: DagGraph): DagLayers {
     layerByNodeId.set(nodeId, layer);
     maxLayer = Math.max(maxLayer, layer);
 
-    const layerNodeIds = nodesByLayer.get(layer);
+    const layerNodeIds = unorderedNodesByLayer.get(layer);
 
     if (layerNodeIds) {
       layerNodeIds.push(nodeId);
       continue;
     }
 
-    nodesByLayer.set(layer, [nodeId]);
+    unorderedNodesByLayer.set(layer, [nodeId]);
   }
+
+  const orderedNodesByLayer = computeOrderedNodesByLayer(graph, {
+    layerByNodeId,
+    maxLayer,
+    nodesByLayer: unorderedNodesByLayer,
+  });
 
   return {
     layerByNodeId,
     maxLayer,
-    nodesByLayer: freezeLayerMap(nodesByLayer),
+    nodesByLayer: freezeLayerMap(orderedNodesByLayer),
     topologicalOrder: Object.freeze(topologicalOrder),
   };
 }

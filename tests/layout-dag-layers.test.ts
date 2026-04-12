@@ -137,6 +137,139 @@ describe("layout-dag layering", () => {
     });
   });
 
+  it("reorders sibling layers using deterministic structural signatures", () => {
+    const scene = createScene(
+      [
+        { id: "node:n", label: "N" },
+        { id: "node:b", label: "B" },
+        { id: "node:m", label: "M" },
+        { id: "node:a", label: "A" },
+      ],
+      [
+        {
+          id: "edge:b-m",
+          source: "node:b",
+          target: "node:m",
+          kind: "dependency",
+        },
+        {
+          id: "edge:a-n",
+          source: "node:a",
+          target: "node:n",
+          kind: "dependency",
+        },
+      ],
+    );
+    const layers = computeDagLayers(buildDagGraph(scene));
+
+    expect(layers.topologicalOrder).toEqual([
+      "node:a",
+      "node:b",
+      "node:m",
+      "node:n",
+    ]);
+    expect(Object.fromEntries(layers.nodesByLayer.entries())).toEqual({
+      0: ["node:b", "node:a"],
+      1: ["node:m", "node:n"],
+    });
+  });
+
+  it("uses child structure as a deterministic sibling tie-breaker", () => {
+    const scene = createScene(
+      [
+        { id: "node:e", label: "E" },
+        { id: "node:b", label: "B" },
+        { id: "node:d", label: "D" },
+        { id: "node:a", label: "A" },
+        { id: "node:c", label: "C" },
+      ],
+      [
+        {
+          id: "edge:c-d",
+          source: "node:c",
+          target: "node:d",
+          kind: "dependency",
+        },
+        {
+          id: "edge:a-b",
+          source: "node:a",
+          target: "node:b",
+          kind: "dependency",
+        },
+        {
+          id: "edge:b-e",
+          source: "node:b",
+          target: "node:e",
+          kind: "dependency",
+        },
+        {
+          id: "edge:a-c",
+          source: "node:a",
+          target: "node:c",
+          kind: "dependency",
+        },
+      ],
+    );
+    const layers = computeDagLayers(buildDagGraph(scene));
+
+    expect(layers.topologicalOrder).toEqual([
+      "node:a",
+      "node:b",
+      "node:c",
+      "node:d",
+      "node:e",
+    ]);
+    expect(Object.fromEntries(layers.nodesByLayer.entries())).toEqual({
+      0: ["node:a"],
+      1: ["node:c", "node:b"],
+      2: ["node:d", "node:e"],
+    });
+  });
+
+  it("falls back to node id ordering when sibling structure is identical", () => {
+    const scene = createScene(
+      [
+        { id: "node:c", label: "C" },
+        { id: "node:b", label: "B" },
+        { id: "node:a", label: "A" },
+        { id: "node:d", label: "D" },
+      ],
+      [
+        {
+          id: "edge:c-d",
+          source: "node:c",
+          target: "node:d",
+          kind: "dependency",
+        },
+        {
+          id: "edge:a-c",
+          source: "node:a",
+          target: "node:c",
+          kind: "dependency",
+        },
+        {
+          id: "edge:b-d",
+          source: "node:b",
+          target: "node:d",
+          kind: "dependency",
+        },
+        {
+          id: "edge:a-b",
+          source: "node:a",
+          target: "node:b",
+          kind: "dependency",
+        },
+      ],
+    );
+    const layers = computeDagLayers(buildDagGraph(scene));
+
+    expect(Object.fromEntries(layers.nodesByLayer.entries())).toEqual({
+      0: ["node:a"],
+      1: ["node:b", "node:c"],
+      2: ["node:d"],
+    });
+  });
+
   it("rejects cyclic input through the public layout helper", () => {
     const scene = createScene(
       [
