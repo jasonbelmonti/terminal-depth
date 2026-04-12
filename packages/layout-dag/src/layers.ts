@@ -10,6 +10,24 @@ export interface DagLayers {
 }
 
 export function computeDagLayers(graph: DagGraph): DagLayers {
+  const topologicalOrder = computeTopologicalOrder(graph);
+  const { layerByNodeId, maxLayer, nodesByLayer: unorderedNodesByLayer } =
+    computeUnorderedNodesByLayer(graph, topologicalOrder);
+  const orderedNodesByLayer = computeOrderedNodesByLayer(graph, {
+    layerByNodeId,
+    maxLayer,
+    nodesByLayer: unorderedNodesByLayer,
+  });
+
+  return {
+    layerByNodeId,
+    maxLayer,
+    nodesByLayer: freezeLayerMap(orderedNodesByLayer),
+    topologicalOrder: Object.freeze(topologicalOrder),
+  };
+}
+
+function computeTopologicalOrder(graph: DagGraph): string[] {
   const remainingIndegreeByNodeId = new Map<string, number>();
   const readyNodeIds: string[] = [];
   const processedNodeIds = new Set<string>();
@@ -63,8 +81,19 @@ export function computeDagLayers(graph: DagGraph): DagLayers {
     );
   }
 
+  return topologicalOrder;
+}
+
+function computeUnorderedNodesByLayer(
+  graph: DagGraph,
+  topologicalOrder: readonly string[],
+): {
+  readonly layerByNodeId: Map<string, number>;
+  readonly maxLayer: number;
+  readonly nodesByLayer: Map<number, string[]>;
+} {
   const layerByNodeId = new Map<string, number>();
-  const unorderedNodesByLayer = new Map<number, string[]>();
+  const nodesByLayer = new Map<number, string[]>();
   let maxLayer = 0;
 
   for (const nodeId of topologicalOrder) {
@@ -76,27 +105,20 @@ export function computeDagLayers(graph: DagGraph): DagLayers {
     layerByNodeId.set(nodeId, layer);
     maxLayer = Math.max(maxLayer, layer);
 
-    const layerNodeIds = unorderedNodesByLayer.get(layer);
+    const layerNodeIds = nodesByLayer.get(layer);
 
     if (layerNodeIds) {
       layerNodeIds.push(nodeId);
       continue;
     }
 
-    unorderedNodesByLayer.set(layer, [nodeId]);
+    nodesByLayer.set(layer, [nodeId]);
   }
-
-  const orderedNodesByLayer = computeOrderedNodesByLayer(graph, {
-    layerByNodeId,
-    maxLayer,
-    nodesByLayer: unorderedNodesByLayer,
-  });
 
   return {
     layerByNodeId,
     maxLayer,
-    nodesByLayer: freezeLayerMap(orderedNodesByLayer),
-    topologicalOrder: Object.freeze(topologicalOrder),
+    nodesByLayer,
   };
 }
 
